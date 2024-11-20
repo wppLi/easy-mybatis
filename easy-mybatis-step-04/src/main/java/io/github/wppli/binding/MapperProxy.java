@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * 映射器代理类:通过代理类包装对数据库的操作，目前我们本章节会先提供一个简单的包装，模拟对数据库的调用。
@@ -21,10 +22,12 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
     private final SqlSession sqlSession;
     private final Class<T> mapperInterface;
+    private final Map<Method, MapperMethod> methodCache;
 
-    public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface) {
+    public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface, Map<Method, MapperMethod> methodCache) {
         this.sqlSession = sqlSession;
         this.mapperInterface = mapperInterface;
+        this.methodCache = methodCache;
     }
 
     /**
@@ -64,7 +67,21 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
         if (Object.class.equals(method.getDeclaringClass())) {
             return method.invoke(this, args);
         } else {
-            return sqlSession.selectOne(method.getName(), args);
+            final MapperMethod mapperMethod = cachedMapperMethod(method);
+            return mapperMethod.execute(sqlSession, args);
         }
+    }
+
+    /**
+     * 去缓存中找MapperMethod
+     */
+    private MapperMethod cachedMapperMethod(Method method) {
+        MapperMethod mapperMethod = methodCache.get(method);
+        if (mapperMethod == null) {
+            //找不到才去new
+            mapperMethod = new MapperMethod(mapperInterface, method, sqlSession.getConfiguration());
+            methodCache.put(method, mapperMethod);
+        }
+        return mapperMethod;
     }
 }

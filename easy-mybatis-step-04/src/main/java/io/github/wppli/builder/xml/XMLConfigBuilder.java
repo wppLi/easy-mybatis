@@ -79,7 +79,7 @@ public class XMLConfigBuilder extends BaseBuilder {
             // SELECT
             List<Element> selectNodes = root.elements("select");
             for (Element node : selectNodes) {
-                String id = node.attributeValue("id");
+                String id = node.attributeValue("id"); // 方法名
                 String parameterType = node.attributeValue("parameterType");
                 String resultType = node.attributeValue("resultType");
                 String sql = node.getText();
@@ -98,7 +98,7 @@ public class XMLConfigBuilder extends BaseBuilder {
                     sql = sql.replace(g1, "?");
                 }
 
-                String msId = namespace + "." + id;
+                String msId = namespace + "." + id; // 类.方法名
                 String nodeName = node.getName();
                 SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
                 MappedStatement mappedStatement = new MappedStatement.Builder(configuration, msId, sqlCommandType, parameterType, resultType, sql, parameter).build();
