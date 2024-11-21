@@ -13,6 +13,8 @@
         <module>easy-mybatis-step-02</module>
         <module>easy-mybatis-step-03</module>
         <module>easy-mybatis-step-04</module>
+        <module>easy-mybatis-step-05</module>
+        <module>easy-mybatis-step-06</module>
     </modules>
 
     <properties>
